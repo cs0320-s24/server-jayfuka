@@ -4,6 +4,17 @@
 
 # Project Details
 
+Fuka Ikeda (fikeda) and Jay Gopal (jgopal)
+
+Time Spent: 
+
+GitHub Link: https://github.com/cs0320-s24/server-jayfuka
+
+A server that utilizes the American Community Survey (ACS) 1-Year Application Programming Interface (API) to access and analyze Census data.
+
+Built for the Mesh Network Community Coalition in order to quickly identify how much access to the internet each area has.
+
+
 # Design Choices
 
 # Errors/Bugs

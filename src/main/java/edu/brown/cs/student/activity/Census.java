@@ -1,17 +1,13 @@
 package edu.brown.cs.student.activity;
 
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class CensusFindState {
+public class Census {
   private List<List<String>> rawStateToCode;
 
 
-  public CensusFindState() {
-
-  }
+  public Census() { }
 
   @Override
   public String toString() {

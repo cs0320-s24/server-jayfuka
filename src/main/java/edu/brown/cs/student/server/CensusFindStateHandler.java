@@ -4,6 +4,8 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs.student.activity.Activity;
 import edu.brown.cs.student.activity.ActivityAPIUtilities;
+import edu.brown.cs.student.activity.Census;
+import edu.brown.cs.student.activity.CensusAPIUtilities;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,8 +20,12 @@ import spark.Response;
 import spark.Route;
 
 
+
+// Make this into ACSDataSource with a generic send request function taking in URL
+
 public class CensusFindStateHandler implements Route {
 
+    private final static String API_KEY = "47f9ee8e9ab596f0aec07dae474192f8a895fd54";
     @Override
     public Object handle(Request request, Response response) throws Exception {
         Set<String> params = request.queryParams();
@@ -31,7 +37,15 @@ public class CensusFindStateHandler implements Route {
             // Sends a request to the API and receives JSON back
             String activityJson = this.sendRequest();
             // Deserializes JSON into an Activity
-            Activity activity = ActivityAPIUtilities.deserializeActivity(activityJson);
+            Census lookup = CensusAPIUtilities.deserializeActivity(activityJson);
+            lookup.getData();
+
+            //Iterate through the list
+            //TODO: Actually iterature through lookup
+            String stateCode = "001";
+
+
+
             // Adds results to the responseMap
             responseMap.put("result", "success");
             responseMap.put("activity", activity);
@@ -47,11 +61,13 @@ public class CensusFindStateHandler implements Route {
 
     }
 
-    private String sendRequest() throws URISyntaxException, IOException, InterruptedException {
+    private String sendRequest(
+        //Can make this more useful by asking for a URL arg
+    ) throws URISyntaxException, IOException, InterruptedException {
         // Build a request to ACS API
         HttpRequest buildCensusApiRequest =
             HttpRequest.newBuilder()
-                .uri(new URI("https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*"))
+                .uri(new URI("https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*&key=" + API_KEY))
                 .GET()
                 .build();
 

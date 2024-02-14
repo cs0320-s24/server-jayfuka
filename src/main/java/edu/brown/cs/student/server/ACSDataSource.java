@@ -4,6 +4,7 @@ package edu.brown.cs.student.server;
 import edu.brown.cs.student.activity.Census;
 import edu.brown.cs.student.soup.Soup;
 
+import java.time.temporal.ChronoUnit;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,51 +33,78 @@ public class ACSDataSource {
   public Object broadbandNoCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
     String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
     List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
-    String stateCode = "0";
+    String stateCode = null;
+    boolean stateFound = false;
+
     for (List<String> entry : stateEntries) {
       if (entry.get(0).equals(stateName)) {
         stateCode = entry.get(1);
+        stateFound = true;
         break;
       }
     }
+
+    if (!stateFound) {
+      System.err.println("State Name '" + stateName + "' not found");
+      throw new IllegalStateException("State not found: " + stateName);
+    }
+
     String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
     List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
     String countyCode = "0";
+    boolean countyFound = false;
+
     for (List<String> entry : countyEntries) {
       if (entry.get(0).equals(countyName)) {
         countyCode = entry.get(3);
+        countyFound = true;
         break;
       }
+    }
+
+    if (!countyFound) {
+      System.err.println("County Name '" + countyName + "' not found in state: " + stateName);
+      throw new IllegalStateException("County not found: " + countyName);
     }
 
     String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode;
 
     List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
 
-    return broadbandData;
+    return result;
   }
+
 
   public Object broadbandWithCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
     String stateCode = stateCodeCache.getOrDefault(stateName, null);
-    if (stateCode == null) {
+    boolean stateFound = false;
+    if (stateCode == null ) {
       String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
       List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
       for (List<String> entry : stateEntries) {
         if (entry.get(0).equals(stateName)) {
           stateCode = entry.get(1);
           stateCodeCache.put(stateName, stateCode);
+          stateFound = true;
           break;
         }
       }
+
+      if (!stateFound) {
+        System.err.println("State Name '" + stateName + "' not found");
+        throw new IllegalStateException("State not found: " + stateName);
+      }
+
     }
 
     String countyKey = stateCode + ":" + countyName;
     String countyCode = countyCodeCache.getOrDefault(countyKey, null);
+    boolean countyFound = false;
     if (countyCode == null) {
       String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
       List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
@@ -84,8 +112,13 @@ public class ACSDataSource {
         if (entry.get(0).equals(countyName)) {
           countyCode = entry.get(3);
           countyCodeCache.put(countyKey, countyCode);
+          countyFound = true;
           break;
         }
+      }
+      if (!countyFound) {
+        System.err.println("County Name '" + countyName + "' not found in state: " + stateName);
+        throw new IllegalStateException("County not found: " + countyName);
       }
     }
 
@@ -93,12 +126,12 @@ public class ACSDataSource {
 
     List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
 
-    return broadbandData;
+    return result;
   }
 
   public List<List<String>> parseResponse(String response) {

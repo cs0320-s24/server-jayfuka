@@ -12,7 +12,6 @@ public class TestACSAPI {
 
 
     @Test
-
     public void testAPI() throws IOException, URISyntaxException, InterruptedException {
         ACSDataSource source = new ACSDataSource();
         String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";

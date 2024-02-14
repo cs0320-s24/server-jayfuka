@@ -31,9 +31,9 @@ public class ACSDataSource {
 
 
   public Object broadbandNoCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
-    String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
+    String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*" + "&key=" + API_KEY;
     List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
-    String stateCode = null;
+    String stateCode = "";
     boolean stateFound = false;
 
     for (List<String> entry : stateEntries) {
@@ -49,9 +49,9 @@ public class ACSDataSource {
       throw new IllegalStateException("State not found: " + stateName);
     }
 
-    String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
+    String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode + "&key=" + API_KEY;
     List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
-    String countyCode = "0";
+    String countyCode = "";
     boolean countyFound = false;
 
     for (List<String> entry : countyEntries) {
@@ -67,7 +67,7 @@ public class ACSDataSource {
       throw new IllegalStateException("County not found: " + countyName);
     }
 
-    String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode;
+    String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode + "&key=" + API_KEY;
 
     List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
 
@@ -84,7 +84,7 @@ public class ACSDataSource {
     String stateCode = stateCodeCache.getOrDefault(stateName, null);
     boolean stateFound = false;
     if (stateCode == null ) {
-      String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
+      String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*" + "&key=" + API_KEY;
       List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
       for (List<String> entry : stateEntries) {
         if (entry.get(0).equals(stateName)) {

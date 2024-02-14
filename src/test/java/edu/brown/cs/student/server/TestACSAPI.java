@@ -1,22 +1,19 @@
 package edu.brown.cs.student.server;
 
-import com.squareup.moshi.Moshi;
-import okio.Buffer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestCensusHandler {
+public class TestACSAPI {
 
 
     @Test
 
-    public void testStateHander() throws IOException, URISyntaxException, InterruptedException {
+    public void testAPI() throws IOException, URISyntaxException, InterruptedException {
         ACSDataSource source = new ACSDataSource();
         String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
         System.out.println(source.sendRequest(stateURL));

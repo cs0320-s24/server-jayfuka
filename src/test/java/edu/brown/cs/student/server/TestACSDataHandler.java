@@ -14,7 +14,16 @@ public class TestACSDataHandler {
         ACSDataSource dataFetcher = new ACSDataSource();
         String stateName = "Rhode Island";
         String countyName = "Providence County";
-        List<String[]> result = (List<String[]>) dataFetcher.broadbandNoCache(stateName, countyName);
+        Object result = dataFetcher.broadbandNoCache(stateName, countyName);
+        System.out.println(result);
+    }
+
+    @Test
+    void testBroadbandWithCache() throws URISyntaxException, IOException, InterruptedException {
+        ACSDataSource dataFetcher = new ACSDataSource();
+        String stateName = "Rhode Island";
+        String countyName = "Providence County";
+        Object result = dataFetcher.broadbandWithCache(stateName, countyName);
         System.out.println(result);
     }
 

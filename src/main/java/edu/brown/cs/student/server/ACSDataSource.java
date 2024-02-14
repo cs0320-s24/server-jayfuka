@@ -103,7 +103,6 @@ public class ACSDataSource {
 
   public List<List<String>> parseResponse(String response) {
     String[] lines = response.split("\n");
-
     return Arrays.stream(lines)
             .skip(1)  // Skip the header row
             .map(this::parseLine)

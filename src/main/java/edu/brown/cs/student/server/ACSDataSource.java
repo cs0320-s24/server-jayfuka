@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,9 @@ public class ACSDataSource {
   // 2 - retrieve w/o caching
 
   private final static String API_KEY = "47f9ee8e9ab596f0aec07dae474192f8a895fd54";
+  private static final Map<String, String> stateCodeCache = new HashMap<>();
+  private static final Map<String, String> countyCodeCache = new HashMap<>();
+
 
   public Object broadbandNoCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
     String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
@@ -44,15 +48,57 @@ public class ACSDataSource {
         break;
       }
     }
-    String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:"
-            + countyCode + "&in=state:" + stateCode;
-    List<List<String>> finalType = parseResponse(sendRequest(finalURL));
-    return finalType;
+
+    String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode;
+
+    List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
+
+    LocalDateTime now = LocalDateTime.now();
+    Map<String, Object> result = new HashMap<>();
+    result.put("broadbandData", broadbandData);
+    result.put("dateTime", now);
+
+    return result;
   }
 
-  private static Object broadbandWithCache(){
+  public Object broadbandWithCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
+    String stateCode = stateCodeCache.getOrDefault(stateName, null);
+    if (stateCode == null) {
+      String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*";
+      List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
+      for (List<String> entry : stateEntries) {
+        if (entry.get(0).equals(stateName)) {
+          stateCode = entry.get(1);
+          stateCodeCache.put(stateName, stateCode);
+          break;
+        }
+      }
+    }
 
-    return null;
+    String countyKey = stateCode + ":" + countyName;
+    String countyCode = countyCodeCache.getOrDefault(countyKey, null);
+    if (countyCode == null) {
+      String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
+      List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
+      for (List<String> entry : countyEntries) {
+        if (entry.get(0).equals(countyName)) {
+          countyCode = entry.get(3);
+          countyCodeCache.put(countyKey, countyCode);
+          break;
+        }
+      }
+    }
+
+    String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode;
+
+    List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
+
+    LocalDateTime now = LocalDateTime.now();
+    Map<String, Object> result = new HashMap<>();
+    result.put("broadbandData", broadbandData);
+    result.put("dateTime", now);
+
+    return result;
   }
 
   public List<List<String>> parseResponse(String response) {

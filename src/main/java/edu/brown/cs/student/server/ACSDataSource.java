@@ -58,7 +58,7 @@ public class ACSDataSource {
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
 
-    return result;
+    return broadbandData;
   }
 
   public Object broadbandWithCache(String stateName, String countyName) throws URISyntaxException, IOException, InterruptedException {
@@ -98,7 +98,7 @@ public class ACSDataSource {
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
 
-    return result;
+    return broadbandData;
   }
 
   public List<List<String>> parseResponse(String response) {

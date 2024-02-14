@@ -1,6 +1,7 @@
 package edu.brown.cs.student.server;
 
 import org.junit.jupiter.api.Test;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,13 +16,24 @@ public class TestACSDataHandler {
         String stateName = "Rhode Island";
         String countyName = "Providence County";
         Object result = dataFetcher.broadbandNoCache(stateName, countyName);
-        System.out.println(result);
+        List<List<Object>> expected = List.of(List.of("Providence County", "Rhode Island", "85.4", "44", "007"));
+        Assert.assertEquals(expected, result);
     }
 
     @Test
     void testBroadbandWithCache() throws URISyntaxException, IOException, InterruptedException {
         ACSDataSource dataFetcher = new ACSDataSource();
         String stateName = "Rhode Island";
+        String countyName = "Providence County";
+        Object result = dataFetcher.broadbandWithCache(stateName, countyName);
+        List<List<Object>> expected = List.of(List.of("Providence County", "Rhode Island", "85.4", "44", "007"));
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    void testInvalidState() throws URISyntaxException, IOException, InterruptedException {
+        ACSDataSource dataFetcher = new ACSDataSource();
+        String stateName = "Rhote Island";
         String countyName = "Providence County";
         Object result = dataFetcher.broadbandWithCache(stateName, countyName);
         System.out.println(result);

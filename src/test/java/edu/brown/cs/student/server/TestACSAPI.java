@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestACSAPI {
 
-
     @Test
     public void testAPI() throws IOException, URISyntaxException, InterruptedException {
         ACSDataSource source = new ACSDataSource();

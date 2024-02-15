@@ -19,7 +19,7 @@ import static org.testng.Assert.assertThrows;
 public class TestACSDataHandler {
 
     @Test
-    void testBroadbandNoCache() throws URISyntaxException, IOException, InterruptedException {
+    void basicTestBroadbandNoCache() throws URISyntaxException, IOException, InterruptedException {
         ACSDataSource dataFetcher = new ACSDataSource();
         String stateName = "Rhode Island";
         String countyName = "Providence County";
@@ -33,7 +33,44 @@ public class TestACSDataHandler {
     }
 
     @Test
-    void testBroadbandWithCache() throws URISyntaxException, IOException, InterruptedException {
+    void broadbandNoCacheSequentialRequests() throws URISyntaxException, IOException, InterruptedException {
+        ACSDataSource dataFetcher = new ACSDataSource();
+        // Combo 1
+        String stateName = "New Jersey";
+        String countyName = "Ocean County";
+        Object result = dataFetcher.broadbandNoCache(stateName, countyName);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        Map<String, Object> expected = new HashMap<>();
+        List<List<Object>> expectedList = List.of(List.of("Ocean County", "New Jersey", "83.0", "34", "029"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+
+        // Combo 2
+        stateName = "California";
+        countyName = "Stanislaus County";
+        result = dataFetcher.broadbandNoCache(stateName, countyName);
+        now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        expected = new HashMap<>();
+        expectedList = List.of(List.of("Stanislaus County", "California", "90.2", "06", "099"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+
+        // Combo 3
+        stateName = "North Carolina";
+        countyName = "Cleveland County";
+        result = dataFetcher.broadbandNoCache(stateName, countyName);
+        now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        expected = new HashMap<>();
+        expectedList = List.of(List.of("Cleveland County", "North Carolina", "72.0", "37", "045"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    void basicTestBroadbandWithCache() throws URISyntaxException, IOException, InterruptedException {
         ACSDataSource dataFetcher = new ACSDataSource();
         String stateName = "Rhode Island";
         String countyName = "Providence County";
@@ -45,6 +82,45 @@ public class TestACSDataHandler {
         expected.put("dateTime", now);
         Assert.assertEquals(expected, result);
     }
+
+    @Test
+    void broadbandWithCacheSequentialRequests() throws URISyntaxException, IOException, InterruptedException {
+        ACSDataSource dataFetcher = new ACSDataSource();
+        // Combo 1
+        String stateName = "New Jersey";
+        String countyName = "Ocean County";
+        Object result = dataFetcher.broadbandWithCache(stateName, countyName);
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        Map<String, Object> expected = new HashMap<>();
+        List<List<Object>> expectedList = List.of(List.of("Ocean County", "New Jersey", "83.0", "34", "029"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+
+        // Combo 2
+        stateName = "California";
+        countyName = "Stanislaus County";
+        result = dataFetcher.broadbandWithCache(stateName, countyName);
+        now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        expected = new HashMap<>();
+        expectedList = List.of(List.of("Stanislaus County", "California", "90.2", "06", "099"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+
+        // Combo 3
+        stateName = "North Carolina";
+        countyName = "Cleveland County";
+        result = dataFetcher.broadbandWithCache(stateName, countyName);
+        now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        expected = new HashMap<>();
+        expectedList = List.of(List.of("Cleveland County", "North Carolina", "72.0", "37", "045"));
+        expected.put("broadbandData", expectedList);
+        expected.put("dateTime", now);
+        Assert.assertEquals(expected, result);
+    }
+
+    // TODO: Insert caching test that shows second time is faster than first
 
     @Test
     public void testNoCacheInvalidState() throws URISyntaxException, IOException, InterruptedException {

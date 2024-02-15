@@ -21,6 +21,13 @@ import spark.Spark;
  * all had the same shared state.
  */
 public class Server {
+
+  private static final String LOADCSV_PATH = "/loadcsv";
+  private static final String VIEWCSV_PATH = "/viewcsv";
+  private static final String SEARCHCSV_PATH = "/searchcsv";
+
+  private static CSVHandler csvHandler;
+
   public static void main(String[] args) throws FileNotFoundException {
     int port = 3232;
     Spark.port(port);
@@ -47,13 +54,15 @@ public class Server {
           response.header("Access-Control-Allow-Methods", "*");
         });
 
-    FileReader fileReader = new FileReader("data/census/ACS_Five_Year.csv");
-    Spark.get("activity", new ActivityHandler());
-    Spark.get("loadcsv", new CSVHandler(fileReader));
+    csvHandler = new CSVHandler();
+
+    // Register endpoints with the same CSVHandler
+    Spark.get(LOADCSV_PATH, csvHandler);
+    Spark.get(VIEWCSV_PATH, csvHandler);
+    Spark.get(SEARCHCSV_PATH, csvHandler);
+
     Spark.init();
     Spark.awaitInitialization();
-
-
 
     // Notice this link alone leads to a 404... Why is that?
     System.out.println("Server started at http://localhost:" + port);

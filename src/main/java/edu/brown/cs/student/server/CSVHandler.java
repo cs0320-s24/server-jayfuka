@@ -13,6 +13,8 @@ import spark.Route;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,22 +105,41 @@ public class CSVHandler implements Route {
         String colIdentifierIsIndexStr = request.queryParams("colIdentifierIsIndex");
 
         String columnName = request.queryParams("columnName");
+        createErrorResponse("Made it to line 108");
+        try {
+            createErrorResponse("Made it to line 109");
+            // Capture the System.err output temporarily
+            ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+            PrintStream originalErr = System.err;
+            System.setErr(new PrintStream(errContent));
 
-        CSVSearchConfig config = CSVSearchConfig.parseArguments(
-            List.of(csv_file_path, searchValue, hasHeaderStr,
-                columnIndexStr, colIdentifierIsIndexStr, columnName).toArray(new String[0]));
+            // Now, all of the error messages will go to the errContent stream!
+            CSVSearchConfig config = CSVSearchConfig.parseArguments(
+                List.of(csv_file_path, searchValue, hasHeaderStr,
+                    columnIndexStr, colIdentifierIsIndexStr, columnName).toArray(new String[0]));
 
-        // Use FuzzySearchProcessor for search
-        CSVSearchProcessor processor = new CSVSearchProcessor(config);
-        FuzzySearchCriteria searchCriteriaNow = new FuzzySearchCriteria();
-        List<List<String>> results = processor.processCSV(searchCriteriaNow);
+            // Restore original System.err stream
+            System.setErr(originalErr);
 
-        // Serialize the search results using Moshi for a cleaner JSON format
-        Moshi moshi = new Moshi.Builder().build();
-        JsonAdapter<List<List<String>>> adapter = moshi.adapter((Type) List.class);
-        String serializedResults = adapter.toJson(results);
+            if (config == null) {
+                return createErrorResponse("Invalid configuration parameters: " + errContent.toString());
+            }
 
-        return createSuccessResponse(serializedResults);
+            // We will use FuzzySearchProcessor for search - but this can easily be changed to an exact search!
+            CSVSearchProcessor processor = new CSVSearchProcessor(config);
+            FuzzySearchCriteria searchCriteriaNow = new FuzzySearchCriteria();
+            List<List<String>> results = processor.processCSV(searchCriteriaNow);
+            createErrorResponse("Made it to line 130");
+
+            // Serialize the search results using Moshi for a cleaner JSON format
+            Moshi moshi = new Moshi.Builder().build();
+            JsonAdapter<List<List<String>>> adapter = moshi.adapter((Type) List.class);
+            String serializedResults = adapter.toJson(results);
+
+            return createSuccessResponse(serializedResults);
+        } catch (Exception e) {
+            return createErrorResponse("CSV search failed: " + e.getMessage());
+        }
     }
 
     private Map<String, Object> createSuccessResponse(String body) {

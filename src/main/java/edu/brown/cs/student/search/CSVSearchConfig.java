@@ -41,7 +41,6 @@ public class CSVSearchConfig {
   /**
    * @param args A list of strings to use for CSV Search. filename, searchValue, hasHeader,
    *     columnIndex OR columnName, colIdentifierIsIndex
-   * @return CSVSearchConfig instance with variables initialized from input list
    */
   public static CSVSearchConfig parseArguments(String[] args) {
     if (!((args.length == 3) || (args.length == 5))) {

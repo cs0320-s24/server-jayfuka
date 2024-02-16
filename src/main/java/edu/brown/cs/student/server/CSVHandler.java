@@ -33,6 +33,7 @@ public class CSVHandler implements Route {
     private String csv_file_path;
 
     public CSVHandler() {
+        csv_file_path = "data/census/ACS_Five_Year.csv";
     }
 
     @Override
@@ -51,7 +52,7 @@ public class CSVHandler implements Route {
     }
 
     private Object handleLoadCSV(Request request, Response response) throws Exception {
-        String filePath = request.queryParams("filePath"); // Get file path from query parameter
+        String filePath = csv_file_path; // Get file path from query parameter
 
         if (filePath == null) {
             return createErrorResponse("Missing required query parameter 'filePath'");
@@ -86,38 +87,46 @@ public class CSVHandler implements Route {
     }
 
     private Object handleSearchCSV(Request request, Response response) throws Exception {
+        System.out.println("Test logging statement");
         if (!csvLoaded) {
             return createErrorResponse("No CSV loaded yet. Please use /loadcsv first.");
         }
-
         String searchValue = request.queryParams("searchValue");
         if (searchValue == null) {
             return createErrorResponse("Missing required query parameter 'searchValue'");
         }
-
         String hasHeaderStr = request.queryParams("hasHeader");
         if (hasHeaderStr == null) {
             return createErrorResponse("Missing required query parameter 'hasHeader'");
         }
-
         String columnIndexStr = request.queryParams("columnIndex");
-
         String colIdentifierIsIndexStr = request.queryParams("colIdentifierIsIndex");
-
         String columnName = request.queryParams("columnName");
+        System.out.println("Made it to line 108");
         createErrorResponse("Made it to line 108");
         try {
             createErrorResponse("Made it to line 109");
+            System.out.println("Made it to line 109");
             // Capture the System.err output temporarily
             ByteArrayOutputStream errContent = new ByteArrayOutputStream();
             PrintStream originalErr = System.err;
             System.setErr(new PrintStream(errContent));
 
-            // Now, all of the error messages will go to the errContent stream!
-            CSVSearchConfig config = CSVSearchConfig.parseArguments(
-                List.of(csv_file_path, searchValue, hasHeaderStr,
-                    columnIndexStr, colIdentifierIsIndexStr, columnName).toArray(new String[0]));
+            System.out.println("Made it to line 114");
+            System.out.println("File: " + csv_file_path );
+            System.out.println("Search: " + searchValue );
+            System.out.println("Header: " + hasHeaderStr );
+            System.out.println("Column: " + columnIndexStr );
+            System.out.println("colIdentifierIsIndexStr: " + colIdentifierIsIndexStr );
+            System.out.println("Column Name: " +   columnName );
 
+            String[] args = {csv_file_path, searchValue, hasHeaderStr, columnIndexStr, colIdentifierIsIndexStr, columnName};
+
+            System.out.println(args);
+
+            // Now, all of the error messages will go to the errContent stream!
+            CSVSearchConfig config = CSVSearchConfig.parseArguments(args);
+            System.out.println("Made it to line 120");
             // Restore original System.err stream
             System.setErr(originalErr);
 
@@ -130,6 +139,7 @@ public class CSVHandler implements Route {
             FuzzySearchCriteria searchCriteriaNow = new FuzzySearchCriteria();
             List<List<String>> results = processor.processCSV(searchCriteriaNow);
             createErrorResponse("Made it to line 130");
+            System.out.println("Made it to line 130");
 
             // Serialize the search results using Moshi for a cleaner JSON format
             Moshi moshi = new Moshi.Builder().build();

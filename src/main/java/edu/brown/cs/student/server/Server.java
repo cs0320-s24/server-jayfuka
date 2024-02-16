@@ -2,9 +2,6 @@ package edu.brown.cs.student.server;
 
 import static spark.Spark.after;
 
-import edu.brown.cs.student.soup.Soup;
-import edu.brown.cs.student.soup.SoupAPIUtilities;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -26,7 +23,10 @@ public class Server {
   private static final String VIEWCSV_PATH = "/viewcsv";
   private static final String SEARCHCSV_PATH = "/searchcsv";
 
+  private static final String ACS_PATH = "/acs";
+
   private static CSVHandler csvHandler;
+  private static BroadbandHandler broadbandHandler;
 
   public static void main(String[] args) throws FileNotFoundException {
     int port = 3232;
@@ -60,6 +60,10 @@ public class Server {
     Spark.get(LOADCSV_PATH, csvHandler);
     Spark.get(VIEWCSV_PATH, csvHandler);
     Spark.get(SEARCHCSV_PATH, csvHandler);
+
+    broadbandHandler = new BroadbandHandler();
+
+    Spark.get(ACS_PATH, broadbandHandler);
 
     Spark.init();
     Spark.awaitInitialization();

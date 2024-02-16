@@ -1,35 +1,49 @@
 package edu.brown.cs.student.server;
 
-// Add query param that isd a boolean - caching true or false
-// State and county
-// Uses ACSDataSource to take in a state and county, and output percent, date time, state, county, etc.
-
 import edu.brown.cs.student.activity.Census;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import spark.Request;
 import spark.Response;
+import spark.Route;
 
-public class BroadbandHandler {
+public class BroadbandHandler implements Route {
+
+    private ACSDataSource source;  // Declare ACSDataSource as an instance variable
+
+    public BroadbandHandler() {
+        this.source = new ACSDataSource();  // Initialize ACSDataSource in the constructor
+    }
+
+    @Override
+    public Object handle(Request request, Response response) throws Exception {
+        Map<String, Object> responseMap = new HashMap<>();  // Create a response map
+
+        Set<String> params = request.queryParams();
+        String stateName = request.queryParams("state");
+        String countyName = request.queryParams("county");
+
+        try {
+            return createSuccessResponse(source.broadbandWithCache(stateName, countyName));
+        } catch (Exception e) {
+            return createErrorResponse("CSV search failed: " + e.getMessage());
+        }
+    }
+
+    private Map<String, Object> createSuccessResponse(Object body) {
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("body", body);
+        responseMap.put("status", "success");
+        return responseMap;
+    }
+
+    private Map<String, Object> createErrorResponse(String message) {
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("message", message);
+        responseMap.put("status", "error");
+        return responseMap;
+    }
 
 
-//  @Override
-//  public Object handle(Request request, Response response) throws Exception {
-//    Set<String> params = request.queryParams();
-//    String stateName = request.queryParams("state");
-//    String countyName = request.queryParams("county");
-//
-//    ACSDataSource dataNow = newACSDataSource();
-//
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//      // This is a relatively unhelpful exception message. An important part of this sprint will be
-//      // in learning to debug correctly by creating your own informative error messages where Spark
-//      // falls short.
-//      responseMap.put("result", "Exception");
-//    }
-//    return responseMap;
-//
-//  }
 }

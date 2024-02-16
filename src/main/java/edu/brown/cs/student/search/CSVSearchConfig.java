@@ -43,13 +43,7 @@ public class CSVSearchConfig {
    *     columnIndex OR columnName, colIdentifierIsIndex
    */
   public static CSVSearchConfig parseArguments(String[] args) {
-    if (!((args.length == 3) || (args.length == 5))) {
-      System.err.println(
-          "Usage: CSVSearchUtility <filename> <search value> <boolean hasHeader> [<column identifier>] [<boolean colIdentifierIsIndex>]");
-      System.err.println(
-          "If a column identifier is given, colIdentifierIsIndex also needs to be specified.");
-      return null;
-    }
+    System.out.println("parsing");
 
     String filename = args[0];
 

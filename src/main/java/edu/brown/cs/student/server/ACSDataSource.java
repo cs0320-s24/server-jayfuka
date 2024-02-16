@@ -2,7 +2,6 @@ package edu.brown.cs.student.server;
 
 
 import edu.brown.cs.student.activity.Census;
-import edu.brown.cs.student.soup.Soup;
 
 import java.time.temporal.ChronoUnit;
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class ACSDataSource {
     boolean stateFound = false;
 
     for (List<String> entry : stateEntries) {
-      if (entry.get(0).equals(stateName)) {
+      if (entry.get(0).trim().toLowerCase().equals(stateName)) {
         stateCode = entry.get(1);
         stateFound = true;
         break;
@@ -55,7 +54,7 @@ public class ACSDataSource {
     boolean countyFound = false;
 
     for (List<String> entry : countyEntries) {
-      if (entry.get(0).equals(countyName)) {
+      if (entry.get(0).trim().toLowerCase().equals(countyName)) {
         countyCode = entry.get(3);
         countyFound = true;
         break;
@@ -75,7 +74,6 @@ public class ACSDataSource {
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
-
     return result;
   }
 
@@ -87,7 +85,8 @@ public class ACSDataSource {
       String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*" + "&key=" + API_KEY;
       List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
       for (List<String> entry : stateEntries) {
-        if (entry.get(0).equals(stateName)) {
+        System.out.println(entry.get(0).replaceAll("\\s", "").toLowerCase());
+        if (entry.get(0).replaceAll("\\s", "").toLowerCase().equals(stateName)) {
           stateCode = entry.get(1);
           stateCodeCache.put(stateName, stateCode);
           stateFound = true;
@@ -109,7 +108,8 @@ public class ACSDataSource {
       String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
       List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
       for (List<String> entry : countyEntries) {
-        if (entry.get(0).equals(countyName)) {
+        System.out.println(entry.get(0).replaceAll("\\s", "").toLowerCase());
+        if (entry.get(0).replaceAll("\\s", "").toLowerCase().equals(countyName)) {
           countyCode = entry.get(3);
           countyCodeCache.put(countyKey, countyCode);
           countyFound = true;
@@ -130,7 +130,6 @@ public class ACSDataSource {
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
     result.put("dateTime", now);
-
     return result;
   }
 

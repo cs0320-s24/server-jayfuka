@@ -47,7 +47,7 @@ public class CSVHandler implements Route {
         } else if (path.equals("/searchcsv")) {
             return handleSearchCSV(request, response);
         } else {
-            return createErrorResponse("Invalid endpoint. Available endpoints: /loadcsv, /viewcsv, /searchcsv");
+            return new CSVFailureResponse("Invalid endpoint. Available endpoints: /loadcsv, /viewcsv, /searchcsv");
         }
     }
 
@@ -55,7 +55,7 @@ public class CSVHandler implements Route {
         String filePath = csv_file_path; // Get file path from query parameter
 
         if (filePath == null) {
-            return createErrorResponse("Missing required query parameter 'filePath'");
+            return new CSVFailureResponse("Missing required query parameter 'filePath'");
         }
 
         Reader reader = new FileReader(filePath);
@@ -64,39 +64,35 @@ public class CSVHandler implements Route {
         try {
             csvData = parserNow.parse();
             csvLoaded = true;
-            return createSuccessResponse("CSV loaded successfully!");
+            return new CSVFailureResponse("CSV loaded successfully!");
         } catch (FactoryFailureException e) {
-            return createErrorResponse("Error creating objects via CreatorFromRow: " + e.getMessage());
+            return new CSVFailureResponse("Error creating objects via CreatorFromRow: " + e.getMessage());
         } catch (IOException e) {
-            return createErrorResponse("Error reading CSV file: " + e.getMessage());
+            return new CSVFailureResponse("Error reading CSV file: " + e.getMessage());
         }
     }
 
     private Object handleViewCSV(Request request, Response response) throws Exception {
         if (!csvLoaded) {
-            return createErrorResponse("No CSV loaded yet. Please use /loadcsv first.");
+            return new CSVFailureResponse("No CSV loaded yet. Please use /loadcsv first.");
         }
 
-        // Serialize the data using Moshi for a cleaner JSON format
-        Moshi moshi = new Moshi.Builder().build();
-        JsonAdapter<List<List<String>>> adapter = moshi.adapter((Type) List.class);
-        //String serializedData = adapter.toJson(parserNow.parse()); // Re-parse for fresh data
-        String serializedData = adapter.toJson(csvData);
-
-        return createSuccessResponse(serializedData);
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("data", csvData);
+        return new CSVHandler.CSVSuccessResponse(responseMap).serialize();
     }
 
     private Object handleSearchCSV(Request request, Response response) throws Exception {
         if (!csvLoaded) {
-            return createErrorResponse("No CSV loaded yet. Please use /loadcsv first.");
+            return new CSVFailureResponse("No CSV loaded yet. Please use /loadcsv first.");
         }
         String searchValue = request.queryParams("searchValue");
         if (searchValue == null) {
-            return createErrorResponse("Missing required query parameter 'searchValue'");
+            return new CSVFailureResponse("Missing required query parameter 'searchValue'");
         }
         String hasHeaderStr = request.queryParams("hasHeader");
         if (hasHeaderStr == null) {
-            return createErrorResponse("Missing required query parameter 'hasHeader'");
+            return new CSVFailureResponse("Missing required query parameter 'hasHeader'");
         }
         String columnIndexStr = request.queryParams("columnIndex");
         String colIdentifierIsIndexStr = request.queryParams("colIdentifierIsIndex");
@@ -119,7 +115,7 @@ public class CSVHandler implements Route {
             System.setErr(originalErr);
 
             if (config == null) {
-                return createErrorResponse("Invalid configuration parameters: " + errContent.toString());
+                return new CSVFailureResponse("Invalid configuration parameters: " + errContent.toString());
             }
 
             // We will use FuzzySearchProcessor for search - but this can easily be changed to an exact search!
@@ -131,24 +127,61 @@ public class CSVHandler implements Route {
             JsonAdapter<List<List<String>>> adapter = moshi.adapter((Type) List.class);
             String serializedResults = adapter.toJson(results);
 
-            return createSuccessResponse(serializedResults);
+            return new CSVHandler.CSVSuccessResponse();
+
         } catch (Exception e) {
-            return createErrorResponse("CSV search failed: " + e.getMessage());
+            return new CSVFailureResponse("CSV search failed: " + e.getMessage());
         }
     }
 
-    private Map<String, Object> createSuccessResponse(String body) {
-        Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("body", body);
-        responseMap.put("status", "success");
-        return responseMap;
+//    private Map<String, Object> createSuccessResponse(String body) {
+//        Map<String, Object> responseMap = new HashMap<>();
+//        responseMap.put("body", body);
+//        responseMap.put("status", "success");
+//        return responseMap;
+//    }
+
+//    private Map<String, Object> createErrorResponse(String message) {
+//        Map<String, Object> responseMap = new HashMap<>();
+//        responseMap.put("message", message);
+//        responseMap.put("status", "error");
+//        return responseMap;
+//    }
+
+    public record CSVSuccessResponse(String response_type, Map<String, Object> responseMap) {
+
+        public CSVSuccessResponse(Map<String, Object> responseMap) {
+            this("success", responseMap);
+        }
+
+        /**
+         * @return this response, serialized as Json
+         */
+        String serialize() {
+            try {
+                Moshi moshi = new Moshi.Builder().build();
+                JsonAdapter<CSVHandler.CSVSuccessResponse> adapter = moshi.adapter(CSVHandler.CSVSuccessResponse.class);
+                return adapter.toJson(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
     }
 
-    private Map<String, Object> createErrorResponse(String message) {
-        Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("message", message);
-        responseMap.put("status", "error");
-        return responseMap;
-    }
+        public record CSVFailureResponse(String response_type) {
+            public CSVFailureResponse(String error, String message) {
+                this("error");
+            }
+
+            /**
+             * @return this response, serialized as Json
+             */
+            String serialize() {
+                Moshi moshi = new Moshi.Builder().build();
+                return moshi.adapter(CSVHandler.CSVFailureResponse.class).toJson(this);
+            }
+        }
+
 
 }

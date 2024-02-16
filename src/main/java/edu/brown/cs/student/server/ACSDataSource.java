@@ -69,9 +69,10 @@ public class ACSDataSource {
     List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
 
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    String time = now.toString();
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
-    result.put("dateTime", now);
+    result.put("dateTime", time);
     return result;
   }
 
@@ -123,9 +124,10 @@ public class ACSDataSource {
     List<List<String>> broadbandData = parseResponse(sendRequest(finalURL));
 
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    String time = now.toString();
     Map<String, Object> result = new HashMap<>();
     result.put("broadbandData", broadbandData);
-    result.put("dateTime", now);
+    result.put("dateTime", time);
     return result;
   }
 

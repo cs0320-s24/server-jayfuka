@@ -1,9 +1,13 @@
 package edu.brown.cs.student.server;
 
-import edu.brown.cs.student.activity.Census;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -20,26 +24,52 @@ public class BroadbandHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
         String stateName = request.queryParams("state");
         String countyName = request.queryParams("county");
+        Map<String, Object> responseMap = new HashMap<>();
         try {
-            return createSuccessResponse(source.broadbandWithCache(stateName, countyName));
-        } catch (Exception e) {
-            return createErrorResponse("CSV search failed: " + e.getMessage());
+            responseMap.put("broadband_data", source.broadbandWithCache(stateName, countyName));
+            return new BroadbandSuccessResponse(responseMap).serialize();
+        } catch (IllegalStateException e) {
+            return new BroadbandFailureResponse("error", e.getMessage()).serialize();
+        } catch (IOException | URISyntaxException | InterruptedException e) {
+            return new BroadbandFailureResponse("error", "An error occurred while processing the request.").serialize();
         }
     }
 
-    private Map<String, Object> createSuccessResponse(Object body) {
-        Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("body", body);
-        responseMap.put("status", "success");
-        return responseMap;
+
+
+    public record BroadbandSuccessResponse(String response_type, Map<String, Object> responseMap) {
+
+        public BroadbandSuccessResponse(Map<String, Object> responseMap) {
+        this("success", responseMap);
+    }
+    /**
+     * @return this response, serialized as Json
+     */
+    String serialize() {
+        try {
+            Moshi moshi = new Moshi.Builder().build();
+            JsonAdapter<BroadbandSuccessResponse> adapter = moshi.adapter(BroadbandSuccessResponse.class);
+            return adapter.toJson(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+}
+    public record BroadbandFailureResponse(String response_type) {
+        public BroadbandFailureResponse(String error, String message) {
+            this("error");
+        }
+
+        /**
+         * @return this response, serialized as Json
+         */
+        String serialize() {
+            Moshi moshi = new Moshi.Builder().build();
+            return moshi.adapter(BroadbandFailureResponse.class).toJson(this);
+        }
     }
 
-    private Map<String, Object> createErrorResponse(String message) {
-        Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("message", message);
-        responseMap.put("status", "error");
-        return responseMap;
-    }
 
 
 }

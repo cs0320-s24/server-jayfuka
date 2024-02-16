@@ -3,9 +3,6 @@ package edu.brown.cs.student.server;
 import static spark.Spark.after;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
 import spark.Spark;
 
 /**
@@ -70,5 +67,4 @@ public class Server {
 
     System.out.println("Server started at http://localhost:" + port);
   }
-
 }

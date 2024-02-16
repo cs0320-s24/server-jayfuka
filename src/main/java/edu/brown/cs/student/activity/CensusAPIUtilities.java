@@ -1,5 +1,6 @@
 package edu.brown.cs.student.activity;
 
+
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.io.IOException;

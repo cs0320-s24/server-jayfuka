@@ -6,8 +6,7 @@ import java.util.List;
 public class Census {
   private List<List<String>> rawStateToCode;
 
-
-  public Census() { }
+  public Census() {}
 
   @Override
   public String toString() {

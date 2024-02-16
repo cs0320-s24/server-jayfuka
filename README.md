@@ -27,11 +27,11 @@ Click Run to start the server. Server will start at http://localhost:3232. All o
 
 Endpoints:
 
-/loadcsv: Loads a CSV file into memory. This endpoint requires a query parameter specifying the file path.
+/loadcsv: Loads a CSV file into memory. 
 
-/viewcsv: Returns a JSON representation of the loaded CSV data. If no CSV is loaded, an error response is returned.
+/viewcsv: Users are able to view the loaded CSV data. If no CSV is loaded, an error response is returned.
 
-/searchcsv: Performs a search operation on the loaded CSV data based on specified search criteria. It requires several query parameters like 'searchValue', 'hasHeader', 'columnIndex', 'colIdentifierIsIndex', and 'columnName'.
+/searchcsv: Performs a search operation on the loaded CSV data based on specified search criteria. Searchquery parameters are 'searchValue', 'hasHeader', 'columnIndex', 'colIdentifierIsIndex', and 'columnName'.
 
 /broadband: Uses the ACS API to fetch broadband information. 
 

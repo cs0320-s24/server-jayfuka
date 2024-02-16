@@ -23,7 +23,7 @@ public class Server {
   private static final String VIEWCSV_PATH = "/viewcsv";
   private static final String SEARCHCSV_PATH = "/searchcsv";
 
-  private static final String ACS_PATH = "/acs";
+  private static final String ACS_PATH = "/broadband";
 
   private static CSVHandler csvHandler;
   private static BroadbandHandler broadbandHandler;

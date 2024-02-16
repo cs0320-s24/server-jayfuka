@@ -9,14 +9,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.testng.Assert.assertThrows;
 
-public class TestACSDataHandler {
+public class TestACSDataSource {
 
     @Test
     void basicTestBroadbandNoCache() throws URISyntaxException, IOException, InterruptedException {

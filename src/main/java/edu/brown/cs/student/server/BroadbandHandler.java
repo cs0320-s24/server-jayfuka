@@ -18,12 +18,8 @@ public class BroadbandHandler implements Route {
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
-        Map<String, Object> responseMap = new HashMap<>();  // Create a response map
-
-        Set<String> params = request.queryParams();
         String stateName = request.queryParams("state");
         String countyName = request.queryParams("county");
-
         try {
             return createSuccessResponse(source.broadbandWithCache(stateName, countyName));
         } catch (Exception e) {

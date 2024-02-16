@@ -44,8 +44,7 @@ public class ACSDataSource {
     }
 
     if (!stateFound) {
-      System.err.println("State Name '" + stateName + "' not found");
-      throw new IllegalStateException("State not found: " + stateName);
+      System.err.println("State '" +stateName + "' Not Found");
     }
 
     String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode + "&key=" + API_KEY;
@@ -62,8 +61,7 @@ public class ACSDataSource {
     }
 
     if (!countyFound) {
-      System.err.println("County Name '" + countyName + "' not found in state: " + stateName);
-      throw new IllegalStateException("County not found: " + countyName);
+      System.err.println("County '" + countyName + "' Not Found");
     }
 
     String finalURL = "https://api.census.gov/data/2021/acs/acs1/subject/variables?get=NAME,S2802_C03_022E&for=county:" + countyCode + "&in=state:" + stateCode + "&key=" + API_KEY;
@@ -85,7 +83,6 @@ public class ACSDataSource {
       String stateURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=state:*" + "&key=" + API_KEY;
       List<List<String>> stateEntries = parseResponse(sendRequest(stateURL));
       for (List<String> entry : stateEntries) {
-        System.out.println(entry.get(0).replaceAll("\\s", "").toLowerCase());
         if (entry.get(0).replaceAll("\\s", "").toLowerCase().equals(stateName)) {
           stateCode = entry.get(1);
           stateCodeCache.put(stateName, stateCode);
@@ -108,7 +105,6 @@ public class ACSDataSource {
       String countyURL = "https://api.census.gov/data/2010/dec/sf1?get=NAME&for=county:*&in=state:" + stateCode;
       List<List<String>> countyEntries = parseResponse(sendRequest(countyURL));
       for (List<String> entry : countyEntries) {
-        System.out.println(entry.get(0).replaceAll("\\s", "").toLowerCase());
         if (entry.get(0).replaceAll("\\s", "").toLowerCase().equals(countyName)) {
           countyCode = entry.get(3);
           countyCodeCache.put(countyKey, countyCode);

@@ -45,6 +45,16 @@
     </dependency>
 
     <!--
+          This is Guava.
+          We will use it for caching.
+    -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>33.0.0-jre</version>
+    </dependency>
+
+    <!--
            Spark is a lightweight framework for creating web applications.
            Spark is most commonly used to create APIs and websites.
     -->

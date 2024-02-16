@@ -126,7 +126,6 @@ public class CSVHandler implements Route {
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("results", results);
             return new CSVHandler.CSVSuccessResponse(responseMap).serialize();
-
         } catch (Exception e) {
             return new CSVFailureResponse("CSV search failed: " + e.getMessage());
         }

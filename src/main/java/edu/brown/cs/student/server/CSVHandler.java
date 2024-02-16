@@ -64,7 +64,9 @@ public class CSVHandler implements Route {
         try {
             csvData = parserNow.parse();
             csvLoaded = true;
-            return new CSVFailureResponse("CSV loaded successfully!");
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("loading", "success");
+            return new CSVHandler.CSVSuccessResponse(responseMap).serialize();
         } catch (FactoryFailureException e) {
             return new CSVFailureResponse("Error creating objects via CreatorFromRow: " + e.getMessage());
         } catch (IOException e) {
@@ -76,7 +78,6 @@ public class CSVHandler implements Route {
         if (!csvLoaded) {
             return new CSVFailureResponse("No CSV loaded yet. Please use /loadcsv first.");
         }
-
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("data", csvData);
         return new CSVHandler.CSVSuccessResponse(responseMap).serialize();
@@ -122,31 +123,15 @@ public class CSVHandler implements Route {
             CSVSearchProcessor processor = new CSVSearchProcessor(config);
             FuzzySearchCriteria searchCriteriaNow = new FuzzySearchCriteria();
             List<List<String>> results = processor.processCSV(searchCriteriaNow);
-            // Serialize the search results using Moshi for a cleaner JSON format
-            Moshi moshi = new Moshi.Builder().build();
-            JsonAdapter<List<List<String>>> adapter = moshi.adapter((Type) List.class);
-            String serializedResults = adapter.toJson(results);
-
-            return new CSVHandler.CSVSuccessResponse();
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("results", results);
+            return new CSVHandler.CSVSuccessResponse(responseMap).serialize();
 
         } catch (Exception e) {
             return new CSVFailureResponse("CSV search failed: " + e.getMessage());
         }
     }
 
-//    private Map<String, Object> createSuccessResponse(String body) {
-//        Map<String, Object> responseMap = new HashMap<>();
-//        responseMap.put("body", body);
-//        responseMap.put("status", "success");
-//        return responseMap;
-//    }
-
-//    private Map<String, Object> createErrorResponse(String message) {
-//        Map<String, Object> responseMap = new HashMap<>();
-//        responseMap.put("message", message);
-//        responseMap.put("status", "error");
-//        return responseMap;
-//    }
 
     public record CSVSuccessResponse(String response_type, Map<String, Object> responseMap) {
 

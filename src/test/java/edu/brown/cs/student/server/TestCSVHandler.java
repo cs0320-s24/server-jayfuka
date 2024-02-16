@@ -83,15 +83,14 @@ public class TestCSVHandler {
     }
 
     @Test
-    public void testAPI() throws IOException {
+    public void testLoad() throws IOException {
         HttpURLConnection clientConnection = tryRequest("loadcsv");
         assertEquals(200, clientConnection.getResponseCode());
-
         Moshi moshi = new Moshi.Builder().build();
         CSVHandler.CSVSuccessResponse response = moshi.adapter(CSVHandler.CSVSuccessResponse.class)
                 .fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
-
-        System.out.println(response);
+        String expected = "CSVSuccessResponse[response_type=success, responseMap={loading=success}]";
+        assertEquals(expected, response.toString());
         clientConnection.disconnect();
     }
 

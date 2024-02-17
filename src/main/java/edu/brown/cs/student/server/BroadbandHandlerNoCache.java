@@ -11,11 +11,11 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class BroadbandHandler implements Route {
+public class BroadbandHandlerNoCache implements Route {
 
   private ACSDataSource source; // Declare ACSDataSource as an instance variable
 
-  public BroadbandHandler() {
+  public BroadbandHandlerNoCache() {
     this.source = new ACSDataSource(); // Initialize ACSDataSource in the constructor
   }
 
@@ -25,12 +25,11 @@ public class BroadbandHandler implements Route {
     String countyName = request.queryParams("county");
     Map<String, Object> responseMap = new HashMap<>();
     try {
-      Object lookup_result = source.broadbandWithCache(stateName, countyName);
+      Object lookup_result = source.broadbandNoCache(stateName, countyName);
       if (lookup_result == null) {
         throw new IllegalStateException("Null result from lookup!");
       }
       responseMap.put("broadband_data", lookup_result);
-
       return new BroadbandSuccessResponse(responseMap).serialize();
     } catch (IllegalStateException e) {
       return new BroadbandFailureResponse("error", e.getMessage()).serialize();

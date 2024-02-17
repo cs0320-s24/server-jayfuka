@@ -104,7 +104,6 @@ public class ACSDataSource {
 
       if (!stateFound) {
         System.err.println("State Name '" + stateName + "' not found");
-        throw new IllegalStateException("State not found: " + stateName);
       }
     }
 
@@ -125,7 +124,6 @@ public class ACSDataSource {
       }
       if (!countyFound) {
         System.err.println("County Name '" + countyName + "' not found in state: " + stateName);
-        throw new IllegalStateException("County not found: " + countyName);
       }
     }
 

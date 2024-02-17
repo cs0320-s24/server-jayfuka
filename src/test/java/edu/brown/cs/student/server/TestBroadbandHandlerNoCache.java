@@ -19,16 +19,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import spark.Spark;
 
-public class TestBroadbandHandler {
+public class TestBroadbandHandlerNoCache {
   final List answer = new ArrayList();
 
   @BeforeAll
-  public static synchronized void setup_before_everything() {
-    try {
-      Spark.port(0);
-    } catch (Exception e) {
-      // Nothing
-    }
+  public static void setup_before_everything() {
+    Spark.port(0);
     Logger.getLogger("").setLevel(Level.WARNING); // empty name = root logger
   }
 
@@ -42,6 +38,7 @@ public class TestBroadbandHandler {
     Spark.get("loadcsv", new CSVHandler());
     Spark.get("viewcsv", new CSVHandler());
     Spark.get("broadband", new BroadbandHandler());
+    Spark.get("broadbandNoCache", new BroadbandHandlerNoCache());
     Spark.init();
     Spark.awaitInitialization(); // don't continue until the server is listening
   }
@@ -53,6 +50,7 @@ public class TestBroadbandHandler {
     Spark.unmap("loadcsv");
     Spark.unmap("viewcsv");
     Spark.unmap("broadband");
+    Spark.unmap("broadbandNoCache");
     Spark.awaitStop(); // don't proceed until the server is stopped
   }
 
@@ -68,25 +66,25 @@ public class TestBroadbandHandler {
   @Test
   // Recall that the "throws IOException" doesn't signify anything but acknowledgement to the type
   // checker
-  public void testAPI() throws IOException {
-    HttpURLConnection clientConnection = tryRequest("broadband");
+  public void testAPINoCache() throws IOException {
+    HttpURLConnection clientConnection = tryRequest("broadbandNoCache");
 
-    // Going to 'broadband' alone shouldn't work, but the code should be 200
-    assertEquals(200, clientConnection.getResponseCode());
+    // Going to 'broadbandNoCache' alone shouldn't work, and the code should be 500
+    assertEquals(500, clientConnection.getResponseCode());
 
     clientConnection.disconnect();
   }
 
   @Test
-  public void testAPIValidState() throws IOException {
+  public void testAPIValidStateNoCache() throws IOException {
 
     HttpURLConnection clientConnection =
-        tryRequest("broadband?state=rhode%20island&county=providence%20county");
+        tryRequest("broadbandNoCache?state=rhode%20island&county=providence%20county");
     assertEquals(200, clientConnection.getResponseCode());
     Moshi moshi = new Moshi.Builder().build();
-    BroadbandHandler.BroadbandSuccessResponse response =
+    BroadbandHandlerNoCache.BroadbandSuccessResponse response =
         moshi
-            .adapter(BroadbandHandler.BroadbandSuccessResponse.class)
+            .adapter(BroadbandHandlerNoCache.BroadbandSuccessResponse.class)
             .fromJson(new Buffer().readFrom(clientConnection.getInputStream()));
     LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
     String time = now.toString();
@@ -99,11 +97,12 @@ public class TestBroadbandHandler {
   }
 
   @Test
-  public void testAPIInvalidState() throws IOException {
+  public void testAPIInvalidStateNoCache() throws IOException {
 
     HttpURLConnection clientConnection =
-        tryRequest("broadband?state=invalid&county=providence%20county");
+        tryRequest("broadbandNoCache?state=invalid&county=providence%20county");
     assertEquals(200, clientConnection.getResponseCode());
+
     // You will see in console:
     // State Name 'invalid' not found
     clientConnection.disconnect();

@@ -22,8 +22,12 @@ public class Server {
 
   private static final String ACS_PATH = "/broadband";
 
+  private static final String ACS_NO_CACHE_PATH = "/broadbandNoCache";
+
   private static CSVHandler csvHandler;
   private static BroadbandHandler broadbandHandler;
+
+  private static BroadbandHandlerNoCache broadbandHandlerNoCache;
 
   public static void main(String[] args) throws FileNotFoundException {
     int port = 3232;
@@ -61,6 +65,10 @@ public class Server {
     broadbandHandler = new BroadbandHandler();
 
     Spark.get(ACS_PATH, broadbandHandler);
+
+    broadbandHandlerNoCache = new BroadbandHandlerNoCache();
+
+    Spark.get(ACS_NO_CACHE_PATH, broadbandHandlerNoCache);
 
     Spark.init();
     Spark.awaitInitialization();

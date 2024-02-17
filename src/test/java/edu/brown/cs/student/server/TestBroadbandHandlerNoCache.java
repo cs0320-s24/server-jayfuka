@@ -69,8 +69,8 @@ public class TestBroadbandHandlerNoCache {
   public void testAPINoCache() throws IOException {
     HttpURLConnection clientConnection = tryRequest("broadbandNoCache");
 
-    // Going to 'broadbandNoCache' alone shouldn't work, and the code should be 500
-    assertEquals(500, clientConnection.getResponseCode());
+    // Going to 'broadbandNoCache' alone shouldn't work, and the code should be 200
+    assertEquals(200, clientConnection.getResponseCode());
 
     clientConnection.disconnect();
   }

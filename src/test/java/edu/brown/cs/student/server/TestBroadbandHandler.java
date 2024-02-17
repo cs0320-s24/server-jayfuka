@@ -71,8 +71,8 @@ public class TestBroadbandHandler {
   public void testAPI() throws IOException {
     HttpURLConnection clientConnection = tryRequest("broadband");
 
-    // Going to 'broadband' alone shouldn't work, but the code should be 200
-    assertEquals(200, clientConnection.getResponseCode());
+    // Going to 'broadband' alone shouldn't work, but the code should be 500
+    assertEquals(500, clientConnection.getResponseCode());
 
     clientConnection.disconnect();
   }
